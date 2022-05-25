@@ -1,27 +1,18 @@
-(import (chicken port))
 (import (chicken io))
 
-(define input "input.txt")
-
-(define lines
+(print
   (with-input-from-file
-    input
-    (lambda ()
-      (let loop ((line (read-line)) (lines '()))
-        (if (eof-object? line)
-          (reverse lines)
-          (loop (read-line) (cons line lines)))))))
-
-(define (parse line)
-  (with-input-from-string line
+    "input.txt"
     (lambda ()
       (let loop ((c (read-char))
                  (floor 0))
         (cond
           ((eof-object? c) floor)
           (else
-            (case c
-              ((#\() (loop (read-char) (+ floor 1)))
-              ((#\)) (loop (read-char) (- floor 1))))))))))
-
-(parse (car lines))
+            (loop
+              (read-char)
+              ((case c
+                 ((#\() (lambda (f) (+ f 1)))
+                 ((#\)) (lambda (f) (- f 1)))
+                 (else identity))
+               floor))))))))
