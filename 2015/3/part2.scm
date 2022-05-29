@@ -1,47 +1,50 @@
-(import (chicken io))
-(require-extension srfi-113)
-(require-extension srfi-133)
-(require-extension srfi-128)
+(define input-file-path "input.txt")
 
-(define vec=
-  (make-vector-comparator
-    (make-comparator exact-integer? = < number-hash)
-    vector?
-    vector-length
-    vector-ref))
+(define (count-distinct-positions positions)
+  (let loop ((count 0)
+             (posl positions))
+    (cond
+      ((null? posl) count)
+      (else
+        (if (member (car posl) (cdr posl))
+          (loop count (cdr posl))
+          (loop (+ count 1) (cdr posl)))))))
 
-(print
+(define (move c pos)
+  (let ((x (car pos))
+        (y (cdr pos)))
+    (case c
+      ((#\<) (cons (- x 1) y))
+      ((#\>) (cons (+ x 1) y))
+      ((#\^) (cons x (+ y 1)))
+      ((#\v) (cons x (- y 1)))
+      (else pos))))
+
+(define starting-position (cons 0 0))
+(define-record santa-houses pos houses)
+(define santa (make-santa-houses starting-position (list)))
+(define robo-santa (make-santa-houses starting-position (list)))
+
+(define (process-file)
+    (let loop ((c (read-char))
+               (santas (cons santa robo-santa)))
+      (cond
+        ((eof-object? c) (count-distinct-positions
+                           (append (santa-houses-houses (car santas))
+                                   (santa-houses-houses (cdr santas)))))
+        (else
+          (let* ((curr-santa (car santas))
+                 (other-santa (cdr santas))
+                 (pos (santa-houses-pos curr-santa))
+                 (houses (santa-houses-houses curr-santa)))
+            (santa-houses-pos-set! curr-santa (move c pos))
+            (santa-houses-houses-set! curr-santa (cons pos houses))
+            (loop (read-char)
+                  (cons other-santa curr-santa)))))))
+
+(define result
   (with-input-from-file
-    "input.txt"
-    (lambda ()
-      (let* ((current-position (vector 0 0))
-             (position current-position)
-             (other-position current-position))
-        (let loop ((c (read-char))
-                   (position position)
-                   (other-position other-position)
-                   (houses (set vec= position))
-                   (other-houses (set vec= other-position)))
-          (cond
-            ((eof-object? c)
-             (set-size (set-union houses other-houses)))
-            (else
-              (let* ((x (vector-ref position 0))
-                     (y (vector-ref position 1))
-                     (pos (vector
-                            (case c
-                              ((#\<) (- x 1))
-                              ((#\>) (+ x 1))
-                              (else x))
-                            (case c
-                              ((#\v) (- y 1))
-                              ((#\^) (+ y 1))
-                              (else y)))))
-                (loop
-                  (read-char)
-                  other-position
-                  pos
-                  other-houses
-                  (set-adjoin
-                    houses
-                    pos))))))))))
+    input-file-path
+    process-file))
+
+result
