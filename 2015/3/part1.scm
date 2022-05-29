@@ -1,40 +1,40 @@
-(import (chicken io))
-(require-extension srfi-113)
-(require-extension srfi-133)
-(require-extension srfi-128)
+(define input-file-path "input.txt")
 
-(define vec=
-  (make-vector-comparator
-    (make-comparator exact-integer? = < number-hash)
-    vector?
-    vector-length
-    vector-ref))
+(define (count-distinct-positions positions)
+  (let loop ((count 0)
+             (posl positions))
+    (cond
+      ((null? posl) count)
+      (else
+        (if (member (car posl) (cdr posl))
+          (loop count (cdr posl))
+          (loop (+ count 1) (cdr posl)))))))
 
-(print
+(define (move c pos)
+  (let ((x (car pos))
+        (y (cdr pos)))
+    (case c
+      ((#\<) (cons (- x 1) y))
+      ((#\>) (cons (+ x 1) y))
+      ((#\^) (cons x (+ y 1)))
+      ((#\v) (cons x (- y 1)))
+      (else pos))))
+
+(define (process-file)
+  (let ((starting-position (cons 0 0)))
+    (let loop ((c (read-char))
+               (position starting-position)
+               (visited-positions (list)))
+      (cond
+        ((eof-object? c) (count-distinct-positions visited-positions))
+        (else
+          (loop (read-char)
+                (move c position)
+                (cons position visited-positions)))))))
+
+(define result
   (with-input-from-file
-    "input.txt"
-    (lambda ()
-      (let ((current-position (vector 0 0)))
-        (let loop ((c (read-char))
-                   (current-position current-position)
-                   (houses (set vec= current-position)))
-          (cond
-            ((eof-object? c) (set-size houses))
-            (else
-              (let* ((x (vector-ref current-position 0))
-                     (y (vector-ref current-position 1))
-                     (pos (vector
-                            (case c
-                              ((#\<) (- x 1))
-                              ((#\>) (+ x 1))
-                              (else x))
-                            (case c
-                              ((#\v) (- y 1))
-                              ((#\^) (+ y 1))
-                              (else y)))))
-                (loop
-                  (read-char)
-                  pos
-                  (set-adjoin
-                    houses
-                    pos))))))))))
+    input-file-path
+    process-file))
+
+result
