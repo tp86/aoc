@@ -14,6 +14,5 @@
            (map string->number (string-split line "x")))
          lines)))
 
-(for/fold ([total 0])
-          ([dims input])
-  (+ total (apply present-ribbon-area dims)))
+(for/sum ([dims input])
+  (apply present-ribbon-area dims))

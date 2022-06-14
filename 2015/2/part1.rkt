@@ -13,6 +13,5 @@
            (map string->number (string-split line "x")))
          lines)))
 
-(for/fold ([total 0])
-          ([dims input])
-  (+ total (apply present-wrap-area dims)))
+(for/sum ([dims input])
+  (apply present-wrap-area dims))
