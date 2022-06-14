@@ -7,13 +7,14 @@
    "input.txt"))
 
 (call/cc
-  (lambda (return)
-    (foldl (lambda (c fp)
-             (let ([p (cdr fp)]
-                   [f (car fp)])
+  (λ (return)
+    (foldl (λ (c fp)
+             (let* ([p (cdr fp)]
+                    [f (car fp)]
+                    [new-p (+ p 1)])
                (cond
                  [(< f 0) (return p)]
-                 [(char=? c #\() (cons (+ f 1) (+ p 1))]
-                 [(char=? c #\)) (cons (- f 1) (+ p 1))])))
+                 [(char=? c #\() (cons (+ f 1) new-p)]
+                 [(char=? c #\)) (cons (- f 1) new-p)])))
            (cons 0 0)
            input)))
