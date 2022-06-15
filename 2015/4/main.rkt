@@ -4,14 +4,18 @@
 
 (define input "yzbqklnj")
 
-(define number-of-zeros 5)
+(define (solve number-of-zeros)
+  (let ([prefix (make-bytes number-of-zeros (char->integer #\0))])
+    (let loop ([n 0])
+      (let* ([m (md5 (string-append input (number->string n)))]
+             [beq (bytes=? (subbytes m 0 number-of-zeros) prefix)])
+        (cond
+          [beq n]
+          [else
+            (loop (+ n 1))])))))
 
-(define prefix (make-bytes number-of-zeros (char->integer #\0)))
+; part 1
+(solve 5)
 
-(let loop ([n 1])
-  (let* ([m (md5 (string-append input (number->string n)))]
-         [beq (bytes=? (subbytes m 0 5) prefix)])
-    (cond
-      [beq n]
-      [else
-        (loop (+ n 1))])))
+; part 2
+(solve 6)
