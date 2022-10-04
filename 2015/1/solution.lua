@@ -1,14 +1,6 @@
-local function readlines(filename)
-  local f = assert(io.open(filename))
-  local lines = {}
-  for line in f:lines("l") do
-    lines[#lines+1] = line
-  end
-  f:close()
-  return lines
-end
+local aoc = require('aoc')
 
-local input = readlines('input.txt')
+local input = aoc.readlines('input.txt')
 
 local function updatefloor(floor, c)
   if c == '(' then
