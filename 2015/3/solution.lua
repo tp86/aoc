@@ -2,17 +2,17 @@ local aoc = require('aoc')
 
 local rawinput = aoc.readlines('input.txt')
 
-local function up(pos)
-  return { pos[1], pos[2] + 1 }
+local function up(x, y)
+  return x, y + 1
 end
-local function down(pos)
-  return { pos[1], pos[2] - 1 }
+local function down(x, y)
+  return x, y - 1
 end
-local function left(pos)
-  return { pos[1] - 1, pos[2] }
+local function left(x, y)
+  return x - 1, y
 end
-local function right(pos)
-  return { pos[1] + 1, pos[2] }
+local function right(x, y)
+  return x + 1, y
 end
 
 local function parse(input)
@@ -35,20 +35,30 @@ local input = parse(rawinput[1])
 
 local startx, starty = 0, 0
 
-local function traverse(grid, dirs)
-  local pos = { startx, starty }
+local function traverse1(grid, dirs)
+  local x, y = startx, starty
   for _, dir in ipairs(dirs) do
-    pos = dir(pos)
-    local x, y = pos[1], pos[2]
+    x, y = dir(x, y)
     if not grid[x] then grid[x] = {} end
     grid[x][y] = (grid[x][y] or 0) + 1
   end
   return grid
 end
 
-local grid = traverse({ [startx] = { [starty] = 1 } }, input)
+local function traverse2(grid, dirs)
+  local x, y = startx, starty
+  local ox, oy = startx, starty
+  for _, dir in ipairs(dirs) do
+    x, y = dir(x, y)
+    if not grid[x] then grid[x] = {} end
+    grid[x][y] = (grid[x][y] or 0) + 1
+    x, y, ox, oy = ox, oy, x, y
+  end
+  return grid
+end
 
-local function solve1(grid)
+local function solve(grid, fn)
+  local grid = fn(grid, input)
   local visited = 0
   for _, cols in pairs(grid) do
     for _ in pairs(cols) do
@@ -58,4 +68,5 @@ local function solve1(grid)
   return visited
 end
 
-print(1, solve1(grid))
+print(1, solve({[startx] = {[starty] = 1}}, traverse1))
+print(2, solve({[startx] = {[starty] = 1}}, traverse2))
