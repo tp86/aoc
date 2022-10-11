@@ -2,58 +2,78 @@ local aoc = require('aoc')
 
 local rawinput = aoc.readlines('input.txt')
 
-local grid = {}
-for r = 0,999 do
-  grid[r] = {}
-  for c = 0,999 do
-    grid[r][c] = false
-  end
-end
-local function update(fromr, fromc, tor, toc, fn)
-  for r = fromr,tor do
-    for c = fromc,toc do
-      grid[r][c] = fn(grid[r][c])
+local function parseinput(input)
+  local patterns = {
+    '^turn (on) (%d+),(%d+) through (%d+),(%d+)',
+    '^(toggle) (%d+),(%d+) through (%d+),(%d+)',
+    '^turn (off) (%d+),(%d+) through (%d+),(%d+)',
+  }
+  local function parseline(line)
+    for _, rule in ipairs(patterns) do
+      local match, fromrow, fromcol, torow, tocol = string.match(line, rule)
+      if match then
+        return match, fromrow, fromcol, torow, tocol
+      end
     end
   end
-end
-local function turnon(fromr, fromc, tor, toc)
-  update(fromr, fromc, tor, toc, function() return true end)
-end
-local function turnoff(fromr, fromc, tor, toc)
-  update(fromr, fromc, tor, toc, function() return false end)
-end
-local function toggle(fromr, fromc, tor, toc)
-  update(fromr, fromc, tor, toc, function(v) return not v end)
+
+  local parsed = {}
+  for _, line in ipairs(input) do
+    parsed[#parsed + 1] = table.pack(parseline(line))
+  end
+  return parsed
 end
 
-local onpat = '^turn (on) (%d+),(%d+) through (%d+),(%d+)'
-local offpat = '^turn (off) (%d+),(%d+) through (%d+),(%d+)'
-local togglepat = '^(toggle) (%d+),(%d+) through (%d+),(%d+)'
-local function parseentry(line)
-  local action,fromr,fromc,tor,toc = string.match(line, onpat)
-  if action then return function() turnon(fromr, fromc, tor, toc) end end
-  action,fromr,fromc,tor,toc = string.match(line, offpat)
-  if action then return function() turnoff(fromr, fromc, tor, toc) end end
-  action,fromr,fromc,tor,toc = string.match(line, togglepat)
-  if action then return function() toggle(fromr, fromc, tor, toc) end end
+local input = parseinput(rawinput)
+
+local rules = {
+  {
+    ['on'] = function() return 1 end,
+    ['off'] = function() return 0 end,
+    ['toggle'] = function(v) if v == 0 then return 1 elseif v == 1 then return 0 else return v end end,
+  },
+  {
+    ['on'] = function(v) return v + 1 end,
+    ['off'] = function(v) return math.max(v - 1, 0) end,
+    ['toggle'] = function(v) return v + 2 end,
+  }
+}
+
+local minidx, maxidx = 0, 999
+
+local function newgrid()
+  local grid = {}
+  for row = minidx, maxidx do
+    grid[row] = {}
+    for col = minidx, maxidx do
+      grid[row][col] = 0
+    end
+  end
+  return grid
 end
 
-local input = {}
-for _,line in ipairs(rawinput) do
-  input[#input+1] = parseentry(line)
-end
-
-local function solve(input)
+local function run(input, grid, part)
   for _, instruction in ipairs(input) do
-    instruction()
-  end
-  local lit = 0
-  for _, row in ipairs(grid) do
-    for _, light in ipairs(row) do
-      if light then lit = lit + 1 end
+    local rule, fromrow, fromcol, torow, tocol = table.unpack(instruction)
+    for row = fromrow, torow do
+      for col = fromcol, tocol do
+        grid[row][col] = rules[part][rule](grid[row][col])
+      end
     end
   end
-  return lit
 end
 
-print('1', solve(input))
+local function solve(input, part)
+  local grid = newgrid()
+  run(input, grid, part)
+  local total = 0
+  for row = minidx, maxidx do
+    for col = minidx, maxidx do
+      total = total + grid[row][col]
+    end
+  end
+  return total
+end
+
+print('1', solve(input, 1))
+print('2', solve(input, 2))
