@@ -12,6 +12,15 @@ local function readlines(filename)
   return lines
 end
 
+local function parseinput(input, parseline)
+  local parsed = {}
+  for _, line in ipairs(input) do
+    parsed[#parsed+1] = parseline(line)
+  end
+  return parsed
+end
+
 return {
   readlines = readlines,
+  parseinput = parseinput,
 }
