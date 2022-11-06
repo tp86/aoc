@@ -1,5 +1,5 @@
 local function readlines(filename)
-  local filename = dir .. '/' .. filename
+  --local filename = dir .. '/' .. filename
   local f, err = io.open(filename)
   if not f then
     error(err, 2)

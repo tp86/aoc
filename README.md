@@ -17,3 +17,10 @@ In Neovim:
 :luafile ../../nvim.lua
 :make -C ../..
 ```
+
+With pure lua:
+
+```bash
+cd 2015/1
+lua -e 'dofile"../../setup.lua"' solution.lua
+```
