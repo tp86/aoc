@@ -1,3 +1,6 @@
+-- in day directory (e.g. 2015/1) execute with following:
+-- lua -e 'dofile("../../setup.lua")' solution.lua
+
 local source = debug.getinfo(1, "S").source
 local reldir = string.match(source, '^@(.+)/.+$')
 local version = string.match(_VERSION, '^Lua (.+)$')
