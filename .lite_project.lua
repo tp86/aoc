@@ -5,10 +5,6 @@
 
 local config = require "core.config"
 
-local lspconfig = require "plugins.lsp.config"
-
-lspconfig.sumneko_lua.setup()
-
 -- you can add some patterns to ignore files within the project
 -- config.ignore_files = {"^%.", <some-patterns>}
 
@@ -36,3 +32,7 @@ lspconfig.sumneko_lua.setup()
 
 -- You may activate some plugins on a pre-project base to override the user's settings.
 -- config.plugins.trimwitespace = true
+
+local lsp = require "plugins.lsp.config"
+lsp.sumneko_lua.setup {}
+
