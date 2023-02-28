@@ -1,2 +1,3 @@
 .luarocks/
 luacov.*.out
+.aoc-session

@@ -1,0 +1,105 @@
+#!/usr/bin/env fennel
+
+(fn pp [value]
+  (let [{: view} (require :fennel)]
+    (print (view value))))
+
+(local lua-version (_VERSION:match "Lua (.*)"))
+(local path-separator (package.config:sub 3 3))
+(set package.path (table.concat [(.. ".luarocks/share/lua/" lua-version "/?.lua") package.path] path-separator))
+(set package.cpath (table.concat [(.. ".luarocks/lib/lua/" lua-version "/?.so") package.cpath] path-separator))
+(fn add-fnl-path [path]
+  (let [fennel (require :fennel)]
+    (set fennel.path (table.concat [path fennel.path] path-separator))))
+(add-fnl-path "tester/?.fnl")
+(add-fnl-path "src/?.fnl")
+
+(fn install-deps []
+  (let [deps (require :deps)]
+    (each [dep config (pairs deps)]
+      (let [ok? (pcall #(require dep))]
+        (when (not ok?)
+          (os.execute (table.concat
+                        ["luarocks" "--tree" ".luarocks" "--lua-version" lua-version :install (table.unpack config)] " ")))))))
+
+(fn make-dirs [dirs]
+  (let [lfs (require :lfs)]
+    (each [_ dir (ipairs dirs)]
+      (lfs.mkdir dir))))
+
+(fn get-input [day-num dir]
+  (let [lfs (require :lfs)
+        file-name (.. dir "/" "input.txt")]
+    (when (= nil (lfs.attributes file-name :mode))
+      (with-open [session-file (io.open ".aoc-session")
+                  input-file (io.open file-name :w)]
+        (let [curl (require :lcurl)
+              opts {:url (string.format "https://adventofcode.com/2021/day/%s/input" day-num)
+                    :httpheader [(string.format "Cookie: session=%s" (session-file:read :l))]
+                    :writefunction input-file}]
+          (with-open [request (curl.easy opts)]
+            (request:perform)))))))
+
+(local src-files
+  {"solution.fnl" "(fn solve-1 [input])
+
+(fn solve-2 [input])
+
+{: solve-1
+ : solve-2}
+"})
+
+(local test-files
+  {"test.fnl" "(import-macros {: test} :tester)
+(local lu (require :luaunit))
+
+(local {: solve-1 : solve-2} (require :solution))
+
+(local samples-1 [[\"\" nil]])
+
+(test
+  part-1
+  (each [_ sample (ipairs samples-1)]
+    (let [[input expected] sample]
+      (lu.assertEquals (solve-1 input) expected))))
+
+(local samples-2 [[\"\" nil]])
+
+(test
+  part-2
+  (each [_ sample (ipairs samples-2)]
+    (let [[input expected] sample]
+      (lu.assertEquals (solve-2 input) expected))))
+"})
+
+(fn make-files [dir files]
+  (each [name contents (pairs files)]
+    (with-open [file (io.open (.. dir "/" name) :w)]
+      (file:write contents))))
+
+(local commands
+  {:setup (fn []
+            (install-deps))
+   :day (fn [[day-num]]
+          (let [src-dir (.. "src/" day-num)
+                test-dir (.. "test/" day-num)
+                dirs [src-dir test-dir]]
+            (make-dirs dirs)
+            (get-input day-num src-dir)
+            (make-files src-dir src-files)
+            (make-files test-dir test-files)))
+   :test (fn [[day-num]]
+           (os.execute (table.concat
+                         ["fennel" "--correlate"
+                          "--add-fennel-path" (string.format "src/%s/?.fnl" day-num)
+                          "--add-fennel-path" "src/?.fnl"
+                          "tester/tester.fnl" :test (.. "test/" day-num)]
+                         " ")))})
+
+(let [[?command-name & args] arg
+      command-name (or ?command-name "")
+      command (. commands command-name)]
+  (if command
+    (command args)
+    (print (.. "Unknown command: " command-name))))
+;; vim:ft=fennel
