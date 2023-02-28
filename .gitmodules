@@ -1,0 +1,3 @@
+[submodule "2021/tester"]
+	path = 2021/tester
+	url = https://github.com/tp86/fennel-tester
