@@ -14,3 +14,7 @@ Solutions for 2021 year in Fennel with TDD
 - fill sample data in test/<day>/test.fnl
 - `./helper test <day>`
 - solve!
+
+### Issues
+
+- `helper` requires refactoring

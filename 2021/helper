@@ -77,6 +77,9 @@
     (with-open [file (io.open (.. dir "/" name) :w)]
       (file:write contents))))
 
+(fn make-day-fnl-path [day-num]
+  (string.format "src/%s/?.fnl" day-num))
+
 (local commands
   {:setup (fn []
             (install-deps))
@@ -91,10 +94,18 @@
    :test (fn [[day-num]]
            (os.execute (table.concat
                          ["fennel" "--correlate"
-                          "--add-fennel-path" (string.format "src/%s/?.fnl" day-num)
+                          "--add-fennel-path" (make-day-fnl-path day-num)
                           "--add-fennel-path" "src/?.fnl"
                           "tester/tester.fnl" :test (.. "test/" day-num)]
-                         " ")))})
+                         " ")))
+   :check (fn [[day-num]]
+            (add-fnl-path (make-day-fnl-path day-num))
+            (add-fnl-path "src/?.fnl")
+            (let [{: solve-1 : solve-2} (require :solution)
+                  input (with-open [input-file (io.open (string.format "src/%s/input.txt" day-num))]
+                          (input-file:read :a))]
+              (print 1 (solve-1 input))
+              (print 2 (solve-2 input))))})
 
 (let [[?command-name & args] arg
       command-name (or ?command-name "")
