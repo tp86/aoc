@@ -3,9 +3,18 @@
 
 (local {: solve-1 : solve-2} (require :solution))
 
-(local sample "")
-(local answer-1 nil)
-(local answer-2 nil)
+(local sample "199
+200
+208
+210
+200
+207
+240
+269
+260
+263")
+(local answer-1 7)
+(local answer-2 5)
 
 (test
   part-1
