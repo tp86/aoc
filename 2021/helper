@@ -55,21 +55,17 @@
 
 (local {: solve-1 : solve-2} (require :solution))
 
-(local samples-1 [[\"\" nil]])
+(local sample \"\")
+(local answer-1 nil)
+(local answer-2 nil)
 
 (test
   part-1
-  (each [_ sample (ipairs samples-1)]
-    (let [[input expected] sample]
-      (lu.assertEquals (solve-1 input) expected))))
-
-(local samples-2 [[\"\" nil]])
+  (lu.assertEquals (solve-1 sample) answer-1))
 
 (test
   part-2
-  (each [_ sample (ipairs samples-2)]
-    (let [[input expected] sample]
-      (lu.assertEquals (solve-2 input) expected))))
+  (lu.assertEquals (solve-2 sample) answer-2))
 "})
 
 (fn make-files [dir files]
