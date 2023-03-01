@@ -1,9 +1,5 @@
 #!/usr/bin/env -S fennel --correlate
 
-(fn pp [value]
-  (let [{: view} (require :fennel)]
-    (print (view value))))
-
 (local lua-version (_VERSION:match "Lua (.*)"))
 (local path-separator (package.config:sub 3 3))
 (set package.path (table.concat [(.. ".luarocks/share/lua/" lua-version "/?.lua") package.path] path-separator))
@@ -43,7 +39,7 @@
 (local src-files
   {"solution.fnl" "(fn parse-input [input]
   (icollect [entry (input:gmatch \"[^\\n]+\")]
-    entry)
+    entry))
 
 (fn solve-1 [input])
 
