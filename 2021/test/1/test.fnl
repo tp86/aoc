@@ -17,9 +17,9 @@
 (local answer-2 5)
 
 (test
-  part-1
+  "part-1"
   (lu.assertEquals (solve-1 sample) answer-1))
 
 (test
-  part-2
+  "part-2"
   (lu.assertEquals (solve-2 sample) answer-2))
