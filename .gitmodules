@@ -1,3 +1,6 @@
 [submodule "2021/tester"]
-	path = 2021/tester
-	url = https://github.com/tp86/fennel-tester
+  path = 2021/tester
+  url = https://github.com/tp86/fennel-tester
+[submodule "2021/seeds"]
+	path = 2021/seeds
+	url = https://github.com/tp86/seeds

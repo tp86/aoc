@@ -1,13 +1,16 @@
 #!/usr/bin/env -S fennel --correlate
 
+(local fennel (require :fennel))
+
 (local lua-version (_VERSION:match "Lua (.*)"))
 (local path-separator (package.config:sub 3 3))
 (set package.path (table.concat [(.. ".luarocks/share/lua/" lua-version "/?.lua") package.path] path-separator))
 (set package.cpath (table.concat [(.. ".luarocks/lib/lua/" lua-version "/?.so") package.cpath] path-separator))
 (fn add-fnl-path [path]
-  (let [fennel (require :fennel)]
-    (set fennel.path (table.concat [path fennel.path] path-separator))))
-(add-fnl-path "tester/?.fnl")
+  (set fennel.path (table.concat [path fennel.path] path-separator)))
+(fn add-fnl-macro-path [path]
+  (set fennel.macro-path (table.concat [path fennel.macro-path] path-separator)))
+(add-fnl-path "seeds/?.fnl")
 (add-fnl-path "src/?.fnl")
 
 (fn install-deps []
@@ -53,7 +56,7 @@
 "})
 
 (local test-files
-  {"test.fnl" "(import-macros {: test} :tester)
+  {"test.fnl" "(import-macros {: test-fn} :tester)
 (local lu (require :luaunit))
 
 (local {: solve-1 : solve-2} (require :solution))
@@ -62,13 +65,16 @@
 (local answer-1 nil)
 (local answer-2 nil)
 
-(test
-  \"part-1\"
+(test-fn
+  part-1
   (lu.assertEquals (solve-1 sample) answer-1))
 
-(test
-  \"part-2\"
+(test-fn
+  part-2
   (lu.assertEquals (solve-2 sample) answer-2))
+
+{: part-1
+ : part-2}
 "})
 
 (fn make-files [dir files]
@@ -96,8 +102,8 @@
             (make-files test-dir test-files)))
    :test (fn [[day-num]]
            (add-project-fnl-paths day-num)
-           (let [{: run} (require :tester)]
-             (run [:test (.. "test/" day-num)])))
+           (add-fnl-macro-path "seeds/?/init-macros.fnl")
+           (fennel.dofile "seeds/tester/runner" nil (.. "test/" day-num)))
    :run (fn [[day-num]]
           (add-project-fnl-paths day-num)
           (let [{: solve-1 : solve-2} (require :solution)
