@@ -29,7 +29,12 @@
 
       (= y1 y2)
       (fcollect [x (math.min x1 x2) (math.max x1 x2)]
-        (make-point x y1)))))
+        (make-point x y1))
+
+      (fcollect [i 0 (math.abs (- x1 x2))]
+        (let [x (if (< x1 x2) (+ x1 i) (- x1 i))
+              y (if (< y1 y2) (+ y1 i) (- y1 i))]
+          (make-point x y))))))
 
 (fn add-to-grid [grid line]
   (each [_ point (ipairs (line-points line))]
@@ -48,7 +53,15 @@
         (+ sum 1)
         sum))))
 
-(fn solve-2 [input])
+(fn solve-2 [input]
+  (let [grid (make-grid)]
+    (each [_ line (ipairs input)]
+      (add-to-grid grid line))
+    (accumulate [sum 0
+                 _ count (pairs grid)]
+      (if (< 1 count)
+        (+ sum 1)
+        sum))))
 
 (fn solve [input solver]
   (solver (parse-input input)))

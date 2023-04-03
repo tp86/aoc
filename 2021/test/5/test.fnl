@@ -14,7 +14,7 @@
 0,0 -> 8,8
 5,5 -> 8,2")
 (local answer-1 5)
-(local answer-2 nil)
+(local answer-2 12)
 
 (test-fn
   part-1
