@@ -40,7 +40,12 @@
             (request:perform)))))))
 
 (local src-files
-  {"solution.fnl" "(fn parse-input [input]
+  {"solution.fnl" "(local {: view} (require :fennel))
+(fn pp [...]
+  (each [_ value (ipairs [...])]
+    (print (view value))))
+
+(fn parse-input [input]
   (icollect [entry (input:gmatch \"[^\\n]+\")]
     entry))
 
